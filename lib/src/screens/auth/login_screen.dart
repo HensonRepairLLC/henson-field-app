@@ -15,32 +15,68 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     setState(() => loading = true);
-    final supabase = Supabase.instance.client;
-    final res = await supabase.auth.signInWithPassword(
-      email: emailCtrl.text.trim(),
-      password: passCtrl.text.trim(),
-    );
-    setState(() => loading = false);
-    if (res.error == null) {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      final msg = res.error!.message;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ✅ Supabase 2.x authentication API
+      await supabase.auth.signInWithPassword(
+        email: emailCtrl.text.trim(),
+        password: passCtrl.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login successful')),
+      );
+
+      // TODO: Navigate to your home screen
+      // context.go('/home'); or Navigator.push…
+
+    } on AuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unexpected error: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign in')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
-            TextField(controller: passCtrl, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
-            const SizedBox(height: 16),
-            ElevatedButton(onPressed: loading ? null : _signIn, child: loading ? const CircularProgressIndicator() : const Text('Sign In'))
+            TextField(
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: passCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: loading ? null : _signIn,
+              child: loading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text("Sign In"),
+            ),
           ],
         ),
       ),
