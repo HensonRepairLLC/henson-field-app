@@ -1,30 +1,34 @@
-name: Build Windows EXE
+name: Build Flutter Windows EXE
 
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
       with:
-        node-version: 18
+        flutter-version: 'stable'
 
-    - name: Install dependencies
-      run: npm install
+    - name: Enable Windows desktop
+      run: flutter config --enable-windows-desktop
 
-    - name: Build Windows Executable
-      run: npm run build:win
+    - name: Get dependencies
+      run: flutter pub get
 
-    - name: Upload Windows EXE
-      uses: actions/upload-artifact@v3
+    - name: Build Windows executable
+      run: flutter build windows --release
+
+    - name: Upload EXE artifact
+      uses: actions/upload-artifact@v4
       with:
         name: henson-field-app-windows
-        path: dist/*.exe
+        path: build/windows/runner/Release/
