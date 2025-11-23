@@ -4,15 +4,13 @@ class SupabaseService {
   final supabase = Supabase.instance.client;
 
   Future<List<Map<String, dynamic>>> fetchJobs(String orgId) async {
-    final res = await supabase
+    final data = await supabase
         .from('jobs')
         .select('*, sites(*)')
         .eq('organization_id', orgId)
-        .order('scheduled_at', ascending: true)
-        .limit(100)
-        .execute();
+        .order('scheduled_at')
+        .limit(100);
 
-    if (res.error != null) throw res.error!;
-    return List<Map<String, dynamic>>.from(res.data as List);
+    return List<Map<String, dynamic>>.from(data);
   }
 }
