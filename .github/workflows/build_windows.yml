@@ -2,35 +2,29 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 'stable'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-      - name: Enable desktop
-        run: flutter config --enable-windows-desktop
+    - name: Install dependencies
+      run: npm install
 
-      - name: Install dependencies
-        run: flutter pub get
+    - name: Build Windows Executable
+      run: npm run build:win
 
-      - name: Build Windows release
-        run: flutter build windows --release
-
-      - name: Pack Release folder
-        run: powershell -Command "Compress-Archive -Path build\windows\runner\Release\* -DestinationPath henson-field-app-windows-artifact.zip"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: henson-field-app-windows-exe
-          path: henson-field-app-windows-artifact.zip
+    - name: Upload Windows EXE
+      uses: actions/upload-artifact@v3
+      with:
+        name: henson-field-app-windows
+        path: dist/*.exe
