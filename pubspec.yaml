@@ -10,8 +10,8 @@ dependencies:
     sdk: flutter
 
   # ↓↓↓ FIXED VERSIONS RIGHT HERE ↓↓↓
-  supabase_flutter: 0.2.0
-  supabase: 0.2.0
+  supabase_flutter: ^2.10.3
+  supabase: ^2.10.0
   # ↑↑↑ You can use 0.2.0 - the last version compatible with your signInWithPassword() code
 
   flutter_riverpod: ^2.0.0
